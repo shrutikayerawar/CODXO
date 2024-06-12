@@ -1,0 +1,30 @@
+import nltk
+from nltk.corpus import words, reuters
+from nltk.metrics.distance import edit_distance
+from collections import Counter
+import random
+
+# Download necessary NLTK data
+nltk.download('words')
+nltk.download('reuters')
+
+# Load the word list and corpus
+word_list = words.words()
+corpus_words = list(reuters.words())
+
+# Build a unigram model from the corpus
+unigram_model = Counter(corpus_words)
+
+def score_word(word, unigram_model):
+    return unigram_model[word]
+
+def autocorrect(word, word_list, unigram_model, max_distance=2):
+    suggestions = [w for w in word_list if edit_distance(word, w) <= max_distance]
+    scored_suggestions = sorted(suggestions, key=lambda x: (edit_distance(word, x), -score_word(x, unigram_model)))
+    return scored_suggestions
+
+# Example usage
+misspelled_word = "speling"
+corrections = autocorrect(misspelled_word, word_list, unigram_model)
+print(f"Suggestions for '{misspelled_word}': {corrections}")
+
